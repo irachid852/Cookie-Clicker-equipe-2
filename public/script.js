@@ -12,11 +12,17 @@ document.addEventListener('DOMContentLoaded', () => {
   let factories = 0;
   let ships = 0;
   let alchemyLabs = 0;
-  let multiplier2x = 0;
-  let multiplier4x = 0;
-  let multiplier10x = 0;
 
-  // Base costs (much higher)
+  // Boosters par bâtiment (0 à 4)
+  let cursorBoost = 0;
+  let grandmaBoost = 0;
+  let farmBoost = 0;
+  let mineBoost = 0;
+  let factoryBoost = 0;
+  let shipBoost = 0;
+  let alchemyBoost = 0;
+
+  // Coûts de base des bâtiments
   const baseCursorCost = 15;
   const baseGrandmaCost = 100;
   const baseFarmCost = 500;
@@ -24,9 +30,15 @@ document.addEventListener('DOMContentLoaded', () => {
   const baseFactoryCost = 10000;
   const baseShipCost = 50000;
   const baseAlchemyLabCost = 250000;
-  const baseMultiplier2xCost = 1000;
-  const baseMultiplier4xCost = 20000;
-  const baseMultiplier10xCost = 500000;
+
+  // Coûts de base des boosters
+  const baseCursorBoostCost = 500;
+  const baseGrandmaBoostCost = 2000;
+  const baseFarmBoostCost = 10000;
+  const baseMineBoostCost = 50000;
+  const baseFactoryBoostCost = 200000;
+  const baseShipBoostCost = 1000000;
+  const baseAlchemyBoostCost = 5000000;
 
   const audio = document.getElementById('click-sound');
   let soundEnabled = true;
@@ -35,6 +47,17 @@ document.addEventListener('DOMContentLoaded', () => {
   const cpsDisplay = document.getElementById('cps');
   const cookieElement = document.getElementById('cookie');
   const volumeSlider = document.getElementById('volume');
+
+  // Utilitaire : formater les grands nombres
+  function formatNumber(num) {
+    if (typeof num !== 'number' || !isFinite(num)) return '∞';
+    if (num >= 1e15) return (num / 1e15).toFixed(2) + 'Q';
+    if (num >= 1e12) return (num / 1e12).toFixed(2) + 'T';
+    if (num >= 1e9) return (num / 1e9).toFixed(2) + 'B';
+    if (num >= 1e6) return (num / 1e6).toFixed(2) + 'M';
+    if (num >= 1e3) return (num / 1e3).toFixed(2) + 'k';
+    return Math.floor(num).toString();
+  }
 
   // Auth UI
   function showAuth(show) {
@@ -107,7 +130,8 @@ document.addEventListener('DOMContentLoaded', () => {
         },
         body: JSON.stringify({ 
           cookies, cursors, grandmas, farms, mines, factories, ships, alchemyLabs,
-          multiplier2x, multiplier4x, multiplier10x 
+          cursorBoost, grandmaBoost, farmBoost, mineBoost,
+          factoryBoost, shipBoost, alchemyBoost
         })
       });
     } catch (e) {
@@ -131,9 +155,13 @@ document.addEventListener('DOMContentLoaded', () => {
         factories = data.factories || 0;
         ships = data.ships || 0;
         alchemyLabs = data.alchemyLabs || 0;
-        multiplier2x = data.multiplier2x || 0;
-        multiplier4x = data.multiplier4x || 0;
-        multiplier10x = data.multiplier10x || 0;
+        cursorBoost = data.cursorBoost || 0;
+        grandmaBoost = data.grandmaBoost || 0;
+        farmBoost = data.farmBoost || 0;
+        mineBoost = data.mineBoost || 0;
+        factoryBoost = data.factoryBoost || 0;
+        shipBoost = data.shipBoost || 0;
+        alchemyBoost = data.alchemyBoost || 0;
         updateDisplay();
       }
     } catch (e) {
@@ -156,154 +184,234 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   cookieElement.addEventListener('click', () => {
-    cookies += 1 + cursors; // cursor also gives +1 per click
+    cookies += 1 + cursors;
     playSound();
     updateDisplay();
   });
 
+  // Coût d'un bâtiment (progressif)
   function getCost(base, owned) {
-    return Math.ceil(base * Math.pow(1.25, owned)); // Steeper scaling
+    return Math.ceil(base * Math.pow(1.15, owned));
+  }
+
+  // Coût d'un booster (×100 à chaque niveau)
+  function getBoostCost(base, level) {
+    if (level >= 4) return Infinity;
+    return base * Math.pow(100, level);
+  }
+
+  // Calcul de la production (CPS) avec boosters spécifiques
+  function calculateCPS() {
+    return (
+      cursors * 0.1 * Math.pow(2, cursorBoost) +
+      grandmas * 0.5 * Math.pow(2, grandmaBoost) +
+      farms * 2 * Math.pow(2, farmBoost) +
+      mines * 10 * Math.pow(2, mineBoost) +
+      factories * 50 * Math.pow(2, factoryBoost) +
+      ships * 200 * Math.pow(2, shipBoost) +
+      alchemyLabs * 1000 * Math.pow(2, alchemyBoost)
+    );
   }
 
   // ========= BUILDINGS =========
-  window.buyCursor = function() {
+  window.buyCursor = () => {
     const cost = getCost(baseCursorCost, cursors);
     if (cookies >= cost) {
       cookies -= cost;
-      cursors += 1;
+      cursors++;
       playSound();
       updateDisplay();
     }
   };
 
-  window.buyGrandma = function() {
+  window.buyGrandma = () => {
     const cost = getCost(baseGrandmaCost, grandmas);
     if (cookies >= cost) {
       cookies -= cost;
-      grandmas += 1;
+      grandmas++;
       playSound();
       updateDisplay();
     }
   };
 
-  window.buyFarm = function() {
+  window.buyFarm = () => {
     const cost = getCost(baseFarmCost, farms);
     if (cookies >= cost) {
       cookies -= cost;
-      farms += 1;
+      farms++;
       playSound();
       updateDisplay();
     }
   };
 
-  window.buyMine = function() {
+  window.buyMine = () => {
     const cost = getCost(baseMineCost, mines);
     if (cookies >= cost) {
       cookies -= cost;
-      mines += 1;
+      mines++;
       playSound();
       updateDisplay();
     }
   };
 
-  window.buyFactory = function() {
+  window.buyFactory = () => {
     const cost = getCost(baseFactoryCost, factories);
     if (cookies >= cost) {
       cookies -= cost;
-      factories += 1;
+      factories++;
       playSound();
       updateDisplay();
     }
   };
 
-  window.buyShip = function() {
+  window.buyShip = () => {
     const cost = getCost(baseShipCost, ships);
     if (cookies >= cost) {
       cookies -= cost;
-      ships += 1;
+      ships++;
       playSound();
       updateDisplay();
     }
   };
 
-  window.buyAlchemyLab = function() {
+  window.buyAlchemyLab = () => {
     const cost = getCost(baseAlchemyLabCost, alchemyLabs);
     if (cookies >= cost) {
       cookies -= cost;
-      alchemyLabs += 1;
+      alchemyLabs++;
       playSound();
       updateDisplay();
     }
   };
 
-  // ========= BOOSTERS =========
-  window.buyMultiplier2x = function() {
-    const cost = getCost(baseMultiplier2xCost, multiplier2x);
+  // ========= BOOSTERS PAR BÂTIMENT =========
+  window.buyCursorBoost = () => {
+    if (cursorBoost >= 4) return;
+    const cost = getBoostCost(baseCursorBoostCost, cursorBoost);
     if (cookies >= cost) {
       cookies -= cost;
-      multiplier2x += 1;
+      cursorBoost++;
       playSound();
       updateDisplay();
     }
   };
 
-  window.buyMultiplier4x = function() {
-    const cost = getCost(baseMultiplier4xCost, multiplier4x);
+  window.buyGrandmaBoost = () => {
+    if (grandmaBoost >= 4) return;
+    const cost = getBoostCost(baseGrandmaBoostCost, grandmaBoost);
     if (cookies >= cost) {
       cookies -= cost;
-      multiplier4x += 1;
+      grandmaBoost++;
       playSound();
       updateDisplay();
     }
   };
 
-  window.buyMultiplier10x = function() {
-    const cost = getCost(baseMultiplier10xCost, multiplier10x);
+  window.buyFarmBoost = () => {
+    if (farmBoost >= 4) return;
+    const cost = getBoostCost(baseFarmBoostCost, farmBoost);
     if (cookies >= cost) {
       cookies -= cost;
-      multiplier10x += 1;
+      farmBoost++;
       playSound();
       updateDisplay();
     }
   };
 
-  function calculateCPS() {
-    const baseCPS =
-      cursors * 0.1 +
-      grandmas * 0.5 +
-      farms * 2 +
-      mines * 10 +
-      factories * 50 +
-      ships * 200 +
-      alchemyLabs * 1000;
+  window.buyMineBoost = () => {
+    if (mineBoost >= 4) return;
+    const cost = getBoostCost(baseMineBoostCost, mineBoost);
+    if (cookies >= cost) {
+      cookies -= cost;
+      mineBoost++;
+      playSound();
+      updateDisplay();
+    }
+  };
 
-    let multiplier = 1;
-    multiplier *= Math.pow(2, multiplier2x);
-    multiplier *= Math.pow(4, multiplier4x);
-    multiplier *= Math.pow(10, multiplier10x);
+  window.buyFactoryBoost = () => {
+    if (factoryBoost >= 4) return;
+    const cost = getBoostCost(baseFactoryBoostCost, factoryBoost);
+    if (cookies >= cost) {
+      cookies -= cost;
+      factoryBoost++;
+      playSound();
+      updateDisplay();
+    }
+  };
 
-    return baseCPS * multiplier;
-  }
+  window.buyShipBoost = () => {
+    if (shipBoost >= 4) return;
+    const cost = getBoostCost(baseShipBoostCost, shipBoost);
+    if (cookies >= cost) {
+      cookies -= cost;
+      shipBoost++;
+      playSound();
+      updateDisplay();
+    }
+  };
 
+  window.buyAlchemyBoost = () => {
+    if (alchemyBoost >= 4) return;
+    const cost = getBoostCost(baseAlchemyBoostCost, alchemyBoost);
+    if (cookies >= cost) {
+      cookies -= cost;
+      alchemyBoost++;
+      playSound();
+      updateDisplay();
+    }
+  };
+
+  // ========= AFFICHAGE =========
   function updateDisplay() {
-    cookieCounter.textContent = `Cookies : ${Math.floor(cookies)}`;
+    cookieCounter.textContent = `Cookies : ${formatNumber(cookies)}`;
     const cps = calculateCPS();
-    cpsDisplay.textContent = `Production : ${cps.toFixed(1)} cookies/sec`;
+    cpsDisplay.textContent = `Production : ${cps >= 1e6 ? (cps / 1e6).toFixed(2) + 'M' : cps.toFixed(1)} cookies/sec`;
 
-    // Update costs
-    document.getElementById('cursor-cost').textContent = getCost(baseCursorCost, cursors);
-    document.getElementById('grandma-cost').textContent = getCost(baseGrandmaCost, grandmas);
-    document.getElementById('farm-cost').textContent = getCost(baseFarmCost, farms);
-    document.getElementById('mine-cost').textContent = getCost(baseMineCost, mines);
-    document.getElementById('factory-cost').textContent = getCost(baseFactoryCost, factories);
-    document.getElementById('ship-cost').textContent = getCost(baseShipCost, ships);
-    document.getElementById('alchemy-cost').textContent = getCost(baseAlchemyLabCost, alchemyLabs);
-    document.getElementById('booster2x-cost').textContent = getCost(baseMultiplier2xCost, multiplier2x);
-    document.getElementById('booster4x-cost').textContent = getCost(baseMultiplier4xCost, multiplier4x);
-    document.getElementById('booster10x-cost').textContent = getCost(baseMultiplier10xCost, multiplier10x);
+    // Coûts des bâtiments
+    document.getElementById('cursor-cost').textContent = formatNumber(getCost(baseCursorCost, cursors));
+    document.getElementById('grandma-cost').textContent = formatNumber(getCost(baseGrandmaCost, grandmas));
+    document.getElementById('farm-cost').textContent = formatNumber(getCost(baseFarmCost, farms));
+    document.getElementById('mine-cost').textContent = formatNumber(getCost(baseMineCost, mines));
+    document.getElementById('factory-cost').textContent = formatNumber(getCost(baseFactoryCost, factories));
+    document.getElementById('ship-cost').textContent = formatNumber(getCost(baseShipCost, ships));
+    document.getElementById('alchemy-cost').textContent = formatNumber(getCost(baseAlchemyLabCost, alchemyLabs));
 
-    // Update button states
-    const buttons = [
+    // Titres des bâtiments avec quantité
+    document.getElementById('cursor-title').textContent = `Curseur (${cursors})`;
+    document.getElementById('grandma-title').textContent = `Grand-mère (${grandmas})`;
+    document.getElementById('farm-title').textContent = `Ferme (${farms})`;
+    document.getElementById('mine-title').textContent = `Mine (${mines})`;
+    document.getElementById('factory-title').textContent = `Usine (${factories})`;
+    document.getElementById('ship-title').textContent = `Navire (${ships})`;
+    document.getElementById('alchemy-title').textContent = `Laboratoire d'Alchimie (${alchemyLabs})`;
+
+    // Boosters : niveaux et coûts
+    document.getElementById('cursor-boost-level').textContent = cursorBoost;
+    document.getElementById('grandma-boost-level').textContent = grandmaBoost;
+    document.getElementById('farm-boost-level').textContent = farmBoost;
+    document.getElementById('mine-boost-level').textContent = mineBoost;
+    document.getElementById('factory-boost-level').textContent = factoryBoost;
+    document.getElementById('ship-boost-level').textContent = shipBoost;
+    document.getElementById('alchemy-boost-level').textContent = alchemyBoost;
+
+    document.getElementById('cursor-boost-cost').textContent = 
+      cursorBoost < 4 ? formatNumber(getBoostCost(baseCursorBoostCost, cursorBoost)) : 'Max';
+    document.getElementById('grandma-boost-cost').textContent = 
+      grandmaBoost < 4 ? formatNumber(getBoostCost(baseGrandmaBoostCost, grandmaBoost)) : 'Max';
+    document.getElementById('farm-boost-cost').textContent = 
+      farmBoost < 4 ? formatNumber(getBoostCost(baseFarmBoostCost, farmBoost)) : 'Max';
+    document.getElementById('mine-boost-cost').textContent = 
+      mineBoost < 4 ? formatNumber(getBoostCost(baseMineBoostCost, mineBoost)) : 'Max';
+    document.getElementById('factory-boost-cost').textContent = 
+      factoryBoost < 4 ? formatNumber(getBoostCost(baseFactoryBoostCost, factoryBoost)) : 'Max';
+    document.getElementById('ship-boost-cost').textContent = 
+      shipBoost < 4 ? formatNumber(getBoostCost(baseShipBoostCost, shipBoost)) : 'Max';
+    document.getElementById('alchemy-boost-cost').textContent = 
+      alchemyBoost < 4 ? formatNumber(getBoostCost(baseAlchemyBoostCost, alchemyBoost)) : 'Max';
+
+    // Désactiver les boutons si insuffisant ou max
+    const buildingButtons = [
       { btn: document.getElementById('buy-cursor'), cost: getCost(baseCursorCost, cursors) },
       { btn: document.getElementById('buy-grandma'), cost: getCost(baseGrandmaCost, grandmas) },
       { btn: document.getElementById('buy-farm'), cost: getCost(baseFarmCost, farms) },
@@ -311,24 +419,35 @@ document.addEventListener('DOMContentLoaded', () => {
       { btn: document.getElementById('buy-factory'), cost: getCost(baseFactoryCost, factories) },
       { btn: document.getElementById('buy-ship'), cost: getCost(baseShipCost, ships) },
       { btn: document.getElementById('buy-alchemy'), cost: getCost(baseAlchemyLabCost, alchemyLabs) },
-      { btn: document.getElementById('buy-booster2x'), cost: getCost(baseMultiplier2xCost, multiplier2x) },
-      { btn: document.getElementById('buy-booster4x'), cost: getCost(baseMultiplier4xCost, multiplier4x) },
-      { btn: document.getElementById('buy-booster10x'), cost: getCost(baseMultiplier10xCost, multiplier10x) },
     ];
 
-    buttons.forEach(({ btn, cost }) => {
+    const boostButtons = [
+      { btn: document.getElementById('buy-cursor-boost'), cost: getBoostCost(baseCursorBoostCost, cursorBoost), level: cursorBoost },
+      { btn: document.getElementById('buy-grandma-boost'), cost: getBoostCost(baseGrandmaBoostCost, grandmaBoost), level: grandmaBoost },
+      { btn: document.getElementById('buy-farm-boost'), cost: getBoostCost(baseFarmBoostCost, farmBoost), level: farmBoost },
+      { btn: document.getElementById('buy-mine-boost'), cost: getBoostCost(baseMineBoostCost, mineBoost), level: mineBoost },
+      { btn: document.getElementById('buy-factory-boost'), cost: getBoostCost(baseFactoryBoostCost, factoryBoost), level: factoryBoost },
+      { btn: document.getElementById('buy-ship-boost'), cost: getBoostCost(baseShipBoostCost, shipBoost), level: shipBoost },
+      { btn: document.getElementById('buy-alchemy-boost'), cost: getBoostCost(baseAlchemyBoostCost, alchemyBoost), level: alchemyBoost },
+    ];
+
+    buildingButtons.forEach(({ btn, cost }) => {
       if (btn) btn.disabled = cookies < cost;
+    });
+
+    boostButtons.forEach(({ btn, cost, level }) => {
+      if (btn) btn.disabled = level >= 4 || cookies < cost;
     });
   }
 
-  // Passive production
+  // Production passive
   setInterval(() => {
     const cps = calculateCPS();
     cookies += cps / 10;
     updateDisplay();
   }, 100);
 
-  // Title change
+  // Changement de titre
   document.getElementById('change-title-btn')?.addEventListener('click', () => {
     const newTitle = document.getElementById('title-input')?.value.trim();
     if (newTitle) {
@@ -336,19 +455,19 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // Manual save
+  // Sauvegarde manuelle
   document.getElementById('save-btn')?.addEventListener('click', () => {
     saveGameState();
     alert('✅ Game saved!');
   });
 
-  // Auto-save
+  // Sauvegarde auto
   setInterval(saveGameState, 15000);
 
-  // Show login screen
+  // Démarrage
   showAuth(true);
 
-  // Expose functions to global scope
+  // Exposer les fonctions globales
   window.login = login;
   window.register = register;
   window.buyCursor = buyCursor;
@@ -358,7 +477,11 @@ document.addEventListener('DOMContentLoaded', () => {
   window.buyFactory = buyFactory;
   window.buyShip = buyShip;
   window.buyAlchemyLab = buyAlchemyLab;
-  window.buyMultiplier2x = buyMultiplier2x;
-  window.buyMultiplier4x = buyMultiplier4x;
-  window.buyMultiplier10x = buyMultiplier10x;
+  window.buyCursorBoost = buyCursorBoost;
+  window.buyGrandmaBoost = buyGrandmaBoost;
+  window.buyFarmBoost = buyFarmBoost;
+  window.buyMineBoost = buyMineBoost;
+  window.buyFactoryBoost = buyFactoryBoost;
+  window.buyShipBoost = buyShipBoost;
+  window.buyAlchemyBoost = buyAlchemyBoost;
 });
