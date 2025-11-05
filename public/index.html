@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Cookie Clicker - Nsigma</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Auth Screen -->
+  <div id="auth-screen">
+    <h2>🍪 Cookie Clicker - Login</h2>
+    <input type="text" id="login-username" placeholder="Username" autocomplete="username">
+    <input type="password" id="login-password" placeholder="Password" autocomplete="current-password">
+    <button onclick="login()">Login</button>
+    <button onclick="register()">Register</button>
+    <p id="auth-message"></p>
+  </div>
+
+  <!-- Game -->
+  <header>
+    <div id="auchan-logo">🛒 Auchan</div>
+    <h1 id="game-title">Cookie Clicker - Nsigma</h1>
+  </header>
+
+  <aside class="menu">
+    <h2>⚙️ Réglages</h2>
+    <label for="volume">Volume du son</label>
+    <input type="range" id="volume" min="0" max="1" step="0.1" value="0.7">
+
+    <label for="title-input">Changer le titre</label>
+    <input type="text" id="title-input" placeholder="Nouveau titre">
+
+    <button id="change-title-btn">Appliquer le titre</button>
+    <button id="save-btn">Sauvegarder</button>
+  </aside>
+
+  <main class="game-area">
+    <div id="stats">
+      <div id="cookie-counter">Cookies : 0</div>
+      <div id="cps">Production : 0.0 cookies/sec</div>
+    </div>
+    <div id="cookie">🍪</div>
+  </main>
+
+  <aside class="upgrades">
+    <h2>améliorations</h2>
+
+    <div class="section">
+      <div class="section-title">⚡ Boosters</div>
+      <div class="upgrade-item">
+        <h3>Doubleur de production</h3>
+        <p>×2 la production de tous les producteurs</p>
+        <button onclick="buyBooster()">Acheter (<span id="booster-cost">100</span> cookies)</button>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="section">
+      <div class="section-title">🏭 Producteurs</div>
+      <div class="upgrade-item">
+        <h3>Ferme à cookies</h3>
+        <p>+1 cookie/sec</p>
+        <button onclick="buyFarm()">Acheter (<span id="farm-cost">15</span> cookies)</button>
+      </div>
+      <div class="upgrade-item">
+        <h3>Usine à cookies</h3>
+        <p>+5 cookies/sec</p>
+        <button onclick="buyFactory()">Acheter (<span id="factory-cost">100</span> cookies)</button>
+      </div>
+    </div>
+  </aside>
+
+  <audio id="click-sound" src="data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvp66NNEQ1Qp+P0uVwqDkua4/jFaSwKQ5Tf9s2eWwY5h9PsunY4A0OL1/Lap0oEIojR7L2BQgMKdLnl879wLQI7f8ro05xHAg9ultvt0Y9A" preload="auto"></audio>
+
+  <script src="script.js"></script>
+</body>
+</html>
