@@ -85,7 +85,7 @@ function calculateCPS() {
 function updateDisplay() {
   cookieCounter.textContent = `Cookies : ${Math.floor(cookies)}`;
   const cps = calculateCPS();
-  cpsDisplay.textContent = `Production : ${cps.toFixed(1)} cookies/sec`;
+  cpsDisplay.textContent = `par seconde : ${cps.toFixed(1)} `;
   //Mise à jour des coûts affichés
   document.getElementById('farm-cost').textContent = getCost(baseFarmCost, farms);
   document.getElementById('factory-cost').textContent = getCost(baseFactoryCost, factories);

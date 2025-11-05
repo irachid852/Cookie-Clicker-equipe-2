@@ -6,6 +6,7 @@
   --vert_clair: #4EB164;
   --background: #F4BC22;
   --texte: #F4BC22;
+  --blanc: #F0F1F2;
 }
 
 * {
@@ -28,7 +29,7 @@ body {
 header {
   grid-column: 1 / -1;
   background-color: var(--vert_fonce);
-  color: white;
+  color: #F4BC22;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -151,7 +152,7 @@ header {
 
 .upgrades h2 {
   margin-bottom: 15px;
-  color: var(--vert);
+  color: var(--noir);
   text-align: center;
 }
 
@@ -163,20 +164,20 @@ header {
   font-size: 1.2rem;
   font-weight: bold;
   margin-bottom: 10px;
-  color: var(--noir);
+  color: var(--vert_fonce);
   border-bottom: 1px solid var(--noir);
   padding-bottom: 4px;
 }
 
 .divider {
   height: 2px;
-  background: var(--vert);
+  background: var(--noir);
   margin: 15px 0;
   border-radius: 2px;
 }
 
 .upgrade-item {
-  background-color: white;
+  background-color: var(--blanc);
   padding: 12px;
   margin-bottom: 12px;
   border-radius: 8px;
