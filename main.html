@@ -1,1 +1,76 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Cookie Clicker - Nsigma</title>
+  <link  rel="stylesheet" href="styles.css">
+  <script src = "script.js" defer></script>
+
+</head>
+<body>
+  <header>
+    <div id="nsigma-logo">Nsigma</div>
+    <h1 id="game-title">Cookie Clicker - Nsigma</h1>
+  </header>
+
+  <!-- Menu Deroulant -->
+  <aside class="menu">
+    <h2>⚙️ Réglages</h2>
+    <label for="volume">Volume du son</label>
+    <input type="range" id="volume" min="0" max="1" step="0.1" value="0.7">
+
+    <label for="title-input">Changer le titre</label>
+    <input type="text" id="title-input" placeholder="Nouveau titre">
+
+    <button id="change-title-btn">Appliquer le titre</button>
+    <button id="save-btn">Sauvegarder</button>
+  </aside>
+
+  <!-- Zone du cookie-->
+  <main class="game-area">
+    <div id="stats">
+      <div id="cookie-counter">Cookies : 0</div>
+      <div id="cps">Production : 0.0 cookies/sec</div>
+    </div>
+    <div id="cookie">🍪</div>
+  </main>
+
+  <!-- Améliorations à droite -->
+  <aside class="upgrades">
+    <h2>améliorations</h2>
+
+     <!-- BOOSTERS -->
+    <div class="section">
+      <div class="section-title">⚡ Boosters</div>
+      <div class="upgrade-item">
+        <h3>Doubleur de production</h3>
+        <p>×2 la production de tous les producteurs</p>
+        <button onclick="buyBooster()">Acheter (<span id="booster-cost">100</span> cookies)</button>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- PRODUCTEURS -->
+    <div class="section">
+      <div class="section-title">🏭 Producteurs</div>
+      <div class="upgrade-item">
+        <h3>Ferme à cookies</h3>
+        <p>+1 cookie/sec</p>
+        <button onclick="buyFarm()">Acheter (<span id="farm-cost">15</span> cookies)</button>
+      </div>
+      <div class="upgrade-item">
+        <h3>Usine à cookies</h3>
+        <p>+5 cookies/sec</p>
+        <button onclick="buyFactory()">Acheter (<span id="factory-cost">100</span> cookies)</button>
+      </div>
+    </div>
+  </aside>
+
+  <audio id="click-sound" src="//choisir la musique" preload="auto"></audio>
+
+
+</body>
+</html>
 
