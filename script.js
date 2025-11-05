@@ -37,13 +37,17 @@ cookieElement.addEventListener('click', () => {
 });
 
 // Calcul du coût exponentiel
-function getCost(base, owned) {
-  return Math.ceil(base * Math.pow(1.15, owned));
+function getCost_Prod(base, owned) {
+  return Math.ceil(base * Math.pow(1.40, owned));
+}
+
+function getCost_Booster(base,owned) {
+  return Math.ceil(base * Math.pow(5.0,owned))
 }
 
 // Acheter une ferme
 function buyFarm() {
-  const cost = getCost(baseFarmCost, farms);
+  const cost = getCost_Prod(baseFarmCost, farms);
   if (cookies >= cost) {
     cookies -= cost;
     farms += 1;
@@ -54,7 +58,7 @@ function buyFarm() {
 
 // Acheter une usine
 function buyFactory() {
-  const cost = getCost(baseFactoryCost, factories);
+  const cost = getCost_Prod(baseFactoryCost, factories);
   if (cookies >= cost) {
     cookies -= cost;
     factories += 1;
@@ -65,7 +69,7 @@ function buyFactory() {
 
 // Acheter un booster
 function buyBooster() {
-  const cost = getCost(baseBoosterCost, boosters);
+  const cost = getCost_Booster(baseBoosterCost, boosters);
   if (cookies >= cost) {
     cookies -= cost;
     boosters += 1;
@@ -87,9 +91,9 @@ function updateDisplay() {
   const cps = calculateCPS();
   cpsDisplay.textContent = `Production : ${cps.toFixed(1)} cookies/sec`;
   //Mise à jour des coûts affichés
-  document.getElementById('farm-cost').textContent = getCost(baseFarmCost, farms);
-  document.getElementById('factory-cost').textContent = getCost(baseFactoryCost, factories);
-  document.getElementById('booster-cost').textContent = getCost(baseBoosterCost, boosters);
+  document.getElementById('farm-cost').textContent = getCost_Prod(baseFarmCost, farms);
+  document.getElementById('factory-cost').textContent = getCost_Prod(baseFactoryCost, factories);
+  document.getElementById('booster-cost').textContent = getCost_Booster(baseBoosterCost, boosters);
   //Visualisation de si on peut acheter les nouvelles usines ou non
   document.querySelectorAll('.upgrade-item button').forEach((btn, i) => {
     let cost;
