@@ -46,28 +46,65 @@
   <aside class="upgrades">
     <h2>améliorations</h2>
 
+    <!-- BUILDINGS -->
     <div class="section">
-      <div class="section-title">⚡ Boosters</div>
+      <div class="section-title">🏭 Bâtiments</div>
       <div class="upgrade-item">
-        <h3>Doubleur de production</h3>
-        <p>×2 la production de tous les producteurs</p>
-        <button onclick="buyBooster()">Acheter (<span id="booster-cost">100</span> cookies)</button>
+        <h3>Curseur</h3>
+        <p>+0.1 cookie/sec, +1 cookie/click</p>
+        <button id="buy-cursor" onclick="buyCursor()">Acheter (<span id="cursor-cost">15</span> cookies)</button>
+      </div>
+      <div class="upgrade-item">
+        <h3>Grand-mère</h3>
+        <p>+0.5 cookie/sec</p>
+        <button id="buy-grandma" onclick="buyGrandma()">Acheter (<span id="grandma-cost">100</span> cookies)</button>
+      </div>
+      <div class="upgrade-item">
+        <h3>Ferme</h3>
+        <p>+2 cookies/sec</p>
+        <button id="buy-farm" onclick="buyFarm()">Acheter (<span id="farm-cost">500</span> cookies)</button>
+      </div>
+      <div class="upgrade-item">
+        <h3>Mine</h3>
+        <p>+10 cookies/sec</p>
+        <button id="buy-mine" onclick="buyMine()">Acheter (<span id="mine-cost">2000</span> cookies)</button>
+      </div>
+      <div class="upgrade-item">
+        <h3>Usine</h3>
+        <p>+50 cookies/sec</p>
+        <button id="buy-factory" onclick="buyFactory()">Acheter (<span id="factory-cost">10000</span> cookies)</button>
+      </div>
+      <div class="upgrade-item">
+        <h3>Navire</h3>
+        <p>+200 cookies/sec</p>
+        <button id="buy-ship" onclick="buyShip()">Acheter (<span id="ship-cost">50000</span> cookies)</button>
+      </div>
+      <div class="upgrade-item">
+        <h3>Laboratoire d'Alchimie</h3>
+        <p>+1000 cookies/sec</p>
+        <button id="buy-alchemy" onclick="buyAlchemyLab()">Acheter (<span id="alchemy-cost">250000</span> cookies)</button>
       </div>
     </div>
 
     <div class="divider"></div>
 
+    <!-- BOOSTERS -->
     <div class="section">
-      <div class="section-title">🏭 Producteurs</div>
+      <div class="section-title">⚡ Boosters</div>
       <div class="upgrade-item">
-        <h3>Ferme à cookies</h3>
-        <p>+1 cookie/sec</p>
-        <button onclick="buyFarm()">Acheter (<span id="farm-cost">15</span> cookies)</button>
+        <h3>Doubleur (x2)</h3>
+        <p>×2 production globale</p>
+        <button id="buy-booster2x" onclick="buyMultiplier2x()">Acheter (<span id="booster2x-cost">1000</span> cookies)</button>
       </div>
       <div class="upgrade-item">
-        <h3>Usine à cookies</h3>
-        <p>+5 cookies/sec</p>
-        <button onclick="buyFactory()">Acheter (<span id="factory-cost">100</span> cookies)</button>
+        <h3>Quadrupleur (x4)</h3>
+        <p>×4 production globale</p>
+        <button id="buy-booster4x" onclick="buyMultiplier4x()">Acheter (<span id="booster4x-cost">20000</span> cookies)</button>
+      </div>
+      <div class="upgrade-item">
+        <h3>Supra-Boost (x10)</h3>
+        <p>×10 production globale</p>
+        <button id="buy-booster10x" onclick="buyMultiplier10x()">Acheter (<span id="booster10x-cost">500000</span> cookies)</button>
       </div>
     </div>
   </aside>
