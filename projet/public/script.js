@@ -5,6 +5,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Game state
   let cookies = 0;
+  let cookiesEarned = 0;
   let cursors = 0;
   let grandmas = 0;
   let farms = 0;
@@ -130,7 +131,7 @@ document.addEventListener('DOMContentLoaded', () => {
           'Authorization': `Bearer ${authToken}`
         },
         body: JSON.stringify({ 
-          cookies, cursors, grandmas, farms, mines, factories, ships, alchemyLabs,
+          cookies,cookiesEarned, cursors, grandmas, farms, mines, factories, ships, alchemyLabs,
           cursorBoost, grandmaBoost, farmBoost, mineBoost,
           factoryBoost, shipBoost, alchemyBoost
         })
@@ -149,6 +150,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const data = await res.json();
       if (res.ok) {
         cookies = data.cookies || 0;
+        cookiesEarned = data.cookiesEarned || 0;
         cursors = data.cursors || 0;
         grandmas = data.grandmas || 0;
         farms = data.farms || 0;
@@ -213,7 +215,8 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   cookieElement.addEventListener('click', () => {
-    cookies += 1 + cursors;
+    cookies += 1 + cursors*Math.pow(2, cursorBoost);
+    cookiesEarned += 1 + cursors*Math.pow(2, cursorBoost);
     playSound();
     updateDisplay();
   });
@@ -473,6 +476,7 @@ document.addEventListener('DOMContentLoaded', () => {
   setInterval(() => {
     const cps = calculateCPS();
     cookies += cps / 10;
+    cookiesEarned +=  cps / 10
     updateDisplay();
   }, 100);
 
