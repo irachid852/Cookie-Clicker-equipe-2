@@ -85,7 +85,13 @@ app.post('/api/register', async (req, res) => {
           return res.status(500).json({ error: 'Registration failed' });
         }
         // Créer un état de jeu vide pour le nouvel utilisateur
-        db.run(`INSERT INTO game_state (user_id) VALUES (?)`, [this.lastID]);
+        db.run(`
+  INSERT INTO game_state (
+    user_id, cookies, cookiesEarned, cursors, grandmas, farms, mines,
+    factories, ships, alchemyLabs, cursorBoost, grandmaBoost, farmBoost,
+    mineBoost, factoryBoost, shipBoost, alchemyBoost
+  ) VALUES (?, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+`, [this.lastID]);
         res.status(201).json({ message: 'User registered successfully' });
       }
     );
