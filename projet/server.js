@@ -31,6 +31,7 @@ const db = new sqlite3.Database('./cookieclicker.db', (err) => {
       CREATE TABLE IF NOT EXISTS game_state (
         user_id INTEGER PRIMARY KEY,
         cookies REAL DEFAULT 0,
+        cookiesEarned REAL DEFAULT 0,
         cursors INTEGER DEFAULT 0,
         grandmas INTEGER DEFAULT 0,
         farms INTEGER DEFAULT 0,
@@ -113,6 +114,7 @@ app.post('/api/login', (req, res) => {
 app.post('/api/save', authenticateToken, (req, res) => {
   const {
     cookies,
+    cookiesEarned,
     cursors,
     grandmas,
     farms,
@@ -134,6 +136,7 @@ app.post('/api/save', authenticateToken, (req, res) => {
   // Validation basique
   const isValid = (
     typeof cookies === 'number' &&
+    typeof cookiesEarned === 'number' && 
     Number.isInteger(cursors) && cursors >= 0 &&
     Number.isInteger(grandmas) && grandmas >= 0 &&
     Number.isInteger(farms) && farms >= 0 &&
@@ -158,6 +161,7 @@ app.post('/api/save', authenticateToken, (req, res) => {
     INSERT INTO game_state (
       user_id,
       cookies,
+      cookiesEarned,
       cursors,
       grandmas,
       farms,
@@ -175,6 +179,7 @@ app.post('/api/save', authenticateToken, (req, res) => {
     ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     ON CONFLICT(user_id) DO UPDATE SET
       cookies = excluded.cookies,
+      cookiesEarned = excluded.cookiesEarned,
       cursors = excluded.cursors,
       grandmas = excluded.grandmas,
       farms = excluded.farms,
@@ -194,6 +199,7 @@ app.post('/api/save', authenticateToken, (req, res) => {
   db.run(query, [
     userId,
     cookies,
+    cookiesEarned,
     cursors,
     grandmas,
     farms,
@@ -223,6 +229,7 @@ app.get('/api/load', authenticateToken, (req, res) => {
   const query = `
     SELECT
       cookies,
+      cookiesEarned,
       cursors,
       grandmas,
       farms,
@@ -249,6 +256,7 @@ app.get('/api/load', authenticateToken, (req, res) => {
       // Retourner un état par défaut si aucune sauvegarde
       return res.json({
         cookies: 0,
+        cookiesEarned: 0,
         cursors: 0,
         grandmas: 0,
         farms: 0,
@@ -272,10 +280,13 @@ app.get('/api/load', authenticateToken, (req, res) => {
 // Leaderboard: top 3 players by cookies (public)
 app.get('/api/leaderboard', (req, res) => {
   const query = `
-    SELECT u.username AS username, gs.cookies AS cookies
+    SELECT 
+      u.username AS username, 
+      gs.cookiesEarned AS totalCookies
     FROM game_state gs
     JOIN users u ON gs.user_id = u.id
-    ORDER BY gs.cookies DESC
+    WHERE gs.cookiesEarned > 0
+    ORDER BY gs.cookiesEarned DESC
     LIMIT 3
   `;
 
@@ -286,7 +297,7 @@ app.get('/api/leaderboard', (req, res) => {
     }
     const result = (rows || []).map(r => ({
       username: r.username || '—',
-      cookies: typeof r.cookies === 'number' ? r.cookies : (r.cookies ? Number(r.cookies) : 0)
+      totalCookies: typeof r.totalCookies === 'number' ? r.totalCookies : (r.totalCookies ? Number(r.totalCookies) : 0)
     }));
     res.json(result);
   });
