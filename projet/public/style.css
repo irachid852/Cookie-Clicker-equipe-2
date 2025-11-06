@@ -5,6 +5,7 @@
   --vert_clair: #4EB164;
   --background: #F4BC22;
   --texte: #F4BC22;
+  --blanc: #F0F1F2;
 }
 
 * {
@@ -34,7 +35,7 @@ body {
   align-items: center;
   justify-content: center;
   z-index: 1000;
-  color: white;
+  color: var(--blanc);
 }
 #auth-screen input {
   margin: 8px;
@@ -47,7 +48,7 @@ body {
   margin: 6px;
   padding: 10px 20px;
   background: var(--vert);
-  color: white;
+  color: var(--blanc);
   border: none;
   border-radius: 5px;
   cursor: pointer;
@@ -62,7 +63,7 @@ body {
 header {
   grid-column: 1 / -1;
   background-color: var(--vert_fonce);
-  color: white;
+  color: var(--blanc);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -84,7 +85,7 @@ header {
 .menu {
   background-color: var(--vert_clair);
   padding: 15px;
-  border-right: 2px solid var(--noir);
+  border-right: 2px solid var(--vert);
   overflow-y: auto;
   width: 300px;
 }
@@ -114,7 +115,7 @@ header {
   padding: 10px;
   margin-top: 5px;
   background-color: var(--vert);
-  color: white;
+  color: var(--blanc);
   border: none;
   border-radius: 5px;
   font-weight: bold;
@@ -139,7 +140,7 @@ th, td {
 }
 th {
   background-color: #4CAF50;
-  color: white;
+  color: var(--blanc);
   text-transform: uppercase;
 }
 
@@ -181,14 +182,47 @@ th {
   justify-content: center;
   box-shadow: 0 4px 12px rgba(0,0,0,0.2);
   font-size: 5rem;
+  animation: spin 10s linear infinite;
+}
+
+@keyframes spin {
+  
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 #cookie:hover {
+  animation:spin_souris 10s linear infinite;
   transform: scale(1.15);
+}
+
+@keyframes spin_souris {
+  
+  from {
+    transform: scale(1.15) rotate(0deg);
+  }
+  to {
+    transform: scale(1.15) rotate(360deg);
+  }
 }
 
 #cookie:active {
   transform: scale(0.85);
+  animation:spin_active 10s linear infinite;  
+}
+
+@keyframes spin_active {
+  
+  from {
+    transform: scale(0.85) rotate(0deg);
+  }
+  to {
+    transform: scale(0.85) rotate(360deg);
+  }
 }
 
 /* ===== Améliorations à droite ===== */
@@ -226,7 +260,7 @@ th {
 }
 
 .upgrade-item {
-  background-color: white;
+  background-color: var(--blanc);
   padding: 12px;
   margin-bottom: 12px;
   border-radius: 8px;
@@ -249,7 +283,7 @@ th {
   width: 100%;
   padding: 8px;
   background-color: var(--noir);
-  color: white;
+  color: var(--blanc);
   border: none;
   border-radius: 4px;
   cursor: pointer;
