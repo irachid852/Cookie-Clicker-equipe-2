@@ -196,9 +196,9 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('joueur3').textContent = safeGet(data, 2, 'username');
 
     // 🔑 ICI : utiliser 'totalCookies', PAS 'cookies'
-    document.getElementById('cookie1').textContent = Math.round(safeGet(data, 0, 'totalCookies', 0));
-    document.getElementById('cookie2').textContent = Math.round(safeGet(data, 1, 'totalCookies', 0));
-    document.getElementById('cookie3').textContent = Math.round(safeGet(data, 2, 'totalCookies', 0));
+document.getElementById('cookie1').textContent = formatNumber(Math.max(0, parseFloat(safeGet(data, 0, 'totalCookies', 0)) || 0));
+document.getElementById('cookie2').textContent = formatNumber(Math.max(0, parseFloat(safeGet(data, 1, 'totalCookies', 0)) || 0));
+document.getElementById('cookie3').textContent = formatNumber(Math.max(0, parseFloat(safeGet(data, 2, 'totalCookies', 0)) || 0));
 
   } catch (e) {
     console.error('🏆 Leaderboard error:', e);
