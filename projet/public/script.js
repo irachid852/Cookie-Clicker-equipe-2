@@ -172,29 +172,43 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  async function leaderboard() {
-    try {
-      console.log("cool");
-      const res = await fetch('/api/leaderboard');
-      console.log('Leaderboard data:', data);
-      }
-      const data = await res.json();
-      console.log(data);
-      console.log(data[0]["username"]);
-      
-      document.getElementById('joueur1').textContent = data[0]["username"]
-      document.getElementById('joueur2').textContent = data[1]["username"]
-      document.getElementById('joueur3').textContent = data[2]["username"]
-
-      document.getElementById('cookie1').textContent = Math.round(data[0]["cookies"])
-      document.getElementById('cookie2').textContent = Math.round(data[1]["cookies"])
-      document.getElementById('cookie3').textContent = Math.round(data[2]["cookies"])      
-
-    } catch (e) {
-      console.warn('Leaderboard fetch failed:', e);
+ async function leaderboard() {
+  try {
+    console.log("Fetching leaderboard...");
+    const res = await fetch('/api/leaderboard');
+    
+    if (!res.ok) {
+      throw new Error(`HTTP ${res.status}: ${await res.text()}`);
     }
-  }
 
+    const data = await res.json(); // 
+    console.log('Leaderboard data:', data);
+
+    // Gestion sécurisée (éviter les erreurs si < 3 joueurs)
+    const safeGet = (arr, index, field, def = '—') => {
+      return arr && arr[index] && arr[index][field] !== undefined 
+        ? arr[index][field] 
+        : def;
+    };
+
+    document.getElementById('joueur1').textContent = safeGet(data, 0, 'username');
+    document.getElementById('joueur2').textContent = safeGet(data, 1, 'username');
+    document.getElementById('joueur3').textContent = safeGet(data, 2, 'username');
+
+    // 🔑 ICI : utiliser 'totalCookies', PAS 'cookies'
+    document.getElementById('cookie1').textContent = Math.round(safeGet(data, 0, 'totalCookies', 0));
+    document.getElementById('cookie2').textContent = Math.round(safeGet(data, 1, 'totalCookies', 0));
+    document.getElementById('cookie3').textContent = Math.round(safeGet(data, 2, 'totalCookies', 0));
+
+  } catch (e) {
+    console.error('🏆 Leaderboard error:', e);
+   
+    document.querySelectorAll('[id^=joueur], [id^=cookie]').forEach(el => {
+      if (el.id.startsWith('joueur')) el.textContent = '—';
+      else el.textContent = '0';
+    });
+  }
+}
   // Game logic
   volumeSlider.addEventListener('input', () => {
     const vol = parseFloat(volumeSlider.value);
