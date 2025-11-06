@@ -220,13 +220,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Coût d'un bâtiment (progressif)
   function getCost(base, owned) {
-    return Math.ceil(base * Math.pow(1.15, owned));
+    return Math.ceil(base * Math.pow(1.10, owned));
   }
 
-  // Coût d'un booster (×100 à chaque niveau)
+  // Coût d'un booster (×10 à chaque niveau)
   function getBoostCost(base, level) {
     if (level >= 4) return Infinity;
-    return base * Math.pow(100, level);
+    return base * Math.pow(10, level);
   }
 
   // Calcul de la production (CPS) avec boosters spécifiques
