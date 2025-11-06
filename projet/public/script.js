@@ -175,13 +175,8 @@ document.addEventListener('DOMContentLoaded', () => {
   async function leaderboard() {
     try {
       console.log("cool");
-      const res = await fetch('/api/leaderboard', {
-        headers: { 'Authorization': `Bearer ${authToken}` }
-      });
-      if (!res.ok) {
-        const text = await res.text();
-        console.warn('Leaderboard request failed', res.status, text);
-        return;
+      const res = await fetch('/api/leaderboard');
+      console.log('Leaderboard data:', data);
       }
       const data = await res.json();
       console.log(data);
