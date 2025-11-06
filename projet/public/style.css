@@ -182,7 +182,7 @@ th {
   justify-content: center;
   box-shadow: 0 4px 12px rgba(0,0,0,0.2);
   font-size: 5rem;
-  animation: spin 10s linear infinite;
+  animation: spin 20s linear infinite;
 }
 
 @keyframes spin {
@@ -196,7 +196,7 @@ th {
 }
 
 #cookie:hover {
-  animation:spin_souris 10s linear infinite;
+  animation:spin_souris 20s linear infinite;
   transform: scale(1.15);
 }
 
@@ -212,7 +212,7 @@ th {
 
 #cookie:active {
   transform: scale(0.85);
-  animation:spin_active 10s linear infinite;  
+  animation:spin_active 20s linear infinite;  
 }
 
 @keyframes spin_active {
