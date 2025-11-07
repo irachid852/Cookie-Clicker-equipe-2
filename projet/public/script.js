@@ -1,11 +1,10 @@
-// Wait for DOM to be ready
+// Attente du chargement complet du DOM
 document.addEventListener('DOMContentLoaded', () => {
-  // Auth state
   let authToken = null;
 
-  // Game state
+  // État du jeu
   let cookies = 0;
-  let cookiesEarned = 0;
+  let totalCookies = 0; // Cumul de tous les cookies gagnés (pour le classement)
   let cursors = 0;
   let grandmas = 0;
   let farms = 0;
@@ -14,7 +13,7 @@ document.addEventListener('DOMContentLoaded', () => {
   let ships = 0;
   let alchemyLabs = 0;
 
-  // Boosters par bâtiment (0 à 4)
+  // Niveaux des boosters (0 à 4 max)
   let cursorBoost = 0;
   let grandmaBoost = 0;
   let farmBoost = 0;
@@ -23,7 +22,7 @@ document.addEventListener('DOMContentLoaded', () => {
   let shipBoost = 0;
   let alchemyBoost = 0;
 
-  // Coûts de base des bâtiments
+  // Coûts de base
   const baseCursorCost = 15;
   const baseGrandmaCost = 100;
   const baseFarmCost = 500;
@@ -32,7 +31,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const baseShipCost = 50000;
   const baseAlchemyLabCost = 250000;
 
-  // Coûts de base des boosters
   const baseCursorBoostCost = 500;
   const baseGrandmaBoostCost = 2000;
   const baseFarmBoostCost = 10000;
@@ -49,18 +47,70 @@ document.addEventListener('DOMContentLoaded', () => {
   const cookieElement = document.getElementById('cookie');
   const volumeSlider = document.getElementById('volume');
 
-  // Utilitaire : formater les grands nombres
-  function formatNumber(num) {
-    if (typeof num !== 'number' || !isFinite(num)) return '∞';
-    if (num >= 1e15) return (num / 1e15).toFixed(2) + 'Q';
-    if (num >= 1e12) return (num / 1e12).toFixed(2) + 'T';
-    if (num >= 1e9) return (num / 1e9).toFixed(2) + 'B';
-    if (num >= 1e6) return (num / 1e6).toFixed(2) + 'M';
-    if (num >= 1e3) return (num / 1e3).toFixed(2) + 'k';
-    return Math.floor(num).toString();
+  // Formatage compact des grands nombres
+function formatNumber(num) {
+  if (typeof num !== 'number' || !isFinite(num)) return '∞';
+  if (num === 0) return '0';
+
+  const sign = num < 0 ? '-' : '';
+  num = Math.abs(num);
+
+  // Échelles utilisées dans cookie clicker
+  // Source : conventions Cookie Clicker
+  const scales = [
+    { limit: 1e63, suffix: 'Vg' }, // Vigintillion (US) 
+    { limit: 1e60, suffix: 'N'  }, // Novemdecillion
+    { limit: 1e57, suffix: 'O'  }, // Octodecillion
+    { limit: 1e54, suffix: 'Sp' }, // Septendecillion
+    { limit: 1e51, suffix: 'Sx' }, // Sexdecillion
+    { limit: 1e48, suffix: 'Qd' }, // Quindecillion
+    { limit: 1e45, suffix: 'Qa' }, // Quattuordecillion
+    { limit: 1e42, suffix: 'T'  }, // Tredecillion
+    { limit: 1e39, suffix: 'D'  }, // Duodecillion
+    { limit: 1e36, suffix: 'U'  }, // Undecillion
+    { limit: 1e33, suffix: 'Dc' }, // Decillion
+    { limit: 1e30, suffix: 'N'  }, // Nonillion
+    { limit: 1e27, suffix: 'O'  }, // Octillion
+    { limit: 1e24, suffix: 'Sp' }, // Septillion
+    { limit: 1e21, suffix: 'Sx' }, // Sextillion
+    { limit: 1e18, suffix: 'Qi' }, // Quintillion
+    { limit: 1e15, suffix: 'Qa' }, // Quadrillion
+    { limit: 1e12, suffix: 'T'  }, // Trillion
+    { limit: 1e9,  suffix: 'B'  }, // Billion
+    { limit: 1e6,  suffix: 'M'  }, // Million
+    { limit: 1e3,  suffix: 'k'  }, // Kilo
+  ];
+
+  // Pour les nombres < 1000 → affichage "normal"
+  if (num < 1000) {
+    // Arrondi intelligent : 1 chiffre après la virgule si < 10, 2 si < 100, sinon entier
+    let str;
+    if (num < 10) {
+      str = num.toFixed(2);
+    } else if (num < 100) {
+      str = num.toFixed(1);
+    } else {
+      str = num.toFixed(0);
+    }
+    return sign + str.replace(/\.?0+$/, '');
   }
 
-  // Auth UI
+  // Cherche la première échelle applicable
+  for (const { limit, suffix } of scales) {
+    if (num >= limit) {
+      const value = num / limit;
+      // On garde 2 chiffres significatifs max, sans zéros inutiles
+      let str = value.toFixed(2);
+      // Si le nombre est entier après division (ex: 2000 → 2.00k), on simplifie
+      str = str.replace(/\.?0+$/, '');
+      return sign + str + suffix;
+    }
+  }
+
+  // Cas théorique (jamais atteint ici)
+  return sign + num.toString();
+}
+
   function showAuth(show) {
     document.getElementById('auth-screen').style.display = show ? 'flex' : 'none';
   }
@@ -84,10 +134,10 @@ document.addEventListener('DOMContentLoaded', () => {
         await leaderboard();
         showAuth(false);
       } else {
-        msg.textContent = data.error || 'Login failed';
+        msg.textContent = data.error || 'Échec de la connexion';
       }
     } catch (e) {
-      msg.textContent = 'Connection error';
+      msg.textContent = 'Erreur réseau';
     }
   }
 
@@ -98,7 +148,7 @@ document.addEventListener('DOMContentLoaded', () => {
     msg.textContent = '';
 
     if (password.length < 6) {
-      msg.textContent = 'Password must be ≥6 characters';
+      msg.textContent = 'Le mot de passe doit avoir ≥6 caractères';
       return;
     }
 
@@ -110,14 +160,14 @@ document.addEventListener('DOMContentLoaded', () => {
       });
       const data = await res.json();
       if (res.ok) {
-        msg.textContent = '✅ Account created! Login now.';
+        msg.textContent = 'Compte créé ! Connectez-vous.';
         msg.style.color = 'lightgreen';
       } else {
-        msg.textContent = data.error || 'Registration failed';
+        msg.textContent = data.error || 'Échec de l’inscription';
         msg.style.color = 'red';
       }
     } catch (e) {
-      msg.textContent = 'Connection error';
+      msg.textContent = 'Erreur réseau';
     }
   }
 
@@ -131,13 +181,15 @@ document.addEventListener('DOMContentLoaded', () => {
           'Authorization': `Bearer ${authToken}`
         },
         body: JSON.stringify({ 
-          cookies,cookiesEarned, cursors, grandmas, farms, mines, factories, ships, alchemyLabs,
+          cookies,
+          total_cookies: totalCookies, // Envoi du cumul
+          cursors, grandmas, farms, mines, factories, ships, alchemyLabs,
           cursorBoost, grandmaBoost, farmBoost, mineBoost,
           factoryBoost, shipBoost, alchemyBoost
         })
       });
     } catch (e) {
-      console.warn('Save failed:', e);
+      console.warn('Échec de la sauvegarde:', e);
     }
   }
 
@@ -150,7 +202,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const data = await res.json();
       if (res.ok) {
         cookies = data.cookies || 0;
-        cookiesEarned = data.cookiesEarned || 0;
+        totalCookies = data.total_cookies || cookies; // Par défaut : au moins les cookies actuels
         cursors = data.cursors || 0;
         grandmas = data.grandmas || 0;
         farms = data.farms || 0;
@@ -168,48 +220,29 @@ document.addEventListener('DOMContentLoaded', () => {
         updateDisplay();
       }
     } catch (e) {
-      console.warn('Load failed:', e);
+      console.warn('Échec du chargement:', e);
     }
   }
 
- async function leaderboard() {
-  try {
-    console.log("Fetching leaderboard...");
-    const res = await fetch('/api/leaderboard');
-    
-    if (!res.ok) {
-      throw new Error(`HTTP ${res.status}: ${await res.text()}`);
+  async function leaderboard() {
+    try {
+      const res = await fetch('/api/leaderboard');
+      if (!res.ok) return;
+      const data = await res.json();
+      const padData = [...data, {}, {}, {}].slice(0, 3); // Complète à 3 entrées
+
+      document.getElementById('joueur1').textContent = padData[0].username || '—';
+      document.getElementById('joueur2').textContent = padData[1].username || '—';
+      document.getElementById('joueur3').textContent = padData[2].username || '—';
+
+      document.getElementById('cookie1').textContent = padData[0].cookies ? formatNumber(padData[0].cookies) : '0';
+      document.getElementById('cookie2').textContent = padData[1].cookies ? formatNumber(padData[1].cookies) : '0';
+      document.getElementById('cookie3').textContent = padData[2].cookies ? formatNumber(padData[2].cookies) : '0';
+    } catch (e) {
+      console.warn('Échec du classement:', e);
     }
-
-    const data = await res.json(); // 
-    console.log('Leaderboard data:', data);
-
-    // Gestion sécurisée (éviter les erreurs si < 3 joueurs)
-    const safeGet = (arr, index, field, def = '—') => {
-      return arr && arr[index] && arr[index][field] !== undefined 
-        ? arr[index][field] 
-        : def;
-    };
-
-    document.getElementById('joueur1').textContent = safeGet(data, 0, 'username');
-    document.getElementById('joueur2').textContent = safeGet(data, 1, 'username');
-    document.getElementById('joueur3').textContent = safeGet(data, 2, 'username');
-
-    // 🔑 ICI : utiliser 'totalCookies', PAS 'cookies'
-document.getElementById('cookie1').textContent = formatNumber(Math.max(0, parseFloat(safeGet(data, 0, 'totalCookies', 0)) || 0));
-document.getElementById('cookie2').textContent = formatNumber(Math.max(0, parseFloat(safeGet(data, 1, 'totalCookies', 0)) || 0));
-document.getElementById('cookie3').textContent = formatNumber(Math.max(0, parseFloat(safeGet(data, 2, 'totalCookies', 0)) || 0));
-
-  } catch (e) {
-    console.error('🏆 Leaderboard error:', e);
-   
-    document.querySelectorAll('[id^=joueur], [id^=cookie]').forEach(el => {
-      if (el.id.startsWith('joueur')) el.textContent = '—';
-      else el.textContent = '0';
-    });
   }
-}
-  // Game logic
+
   volumeSlider.addEventListener('input', () => {
     const vol = parseFloat(volumeSlider.value);
     audio.volume = vol;
@@ -219,29 +252,30 @@ document.getElementById('cookie3').textContent = formatNumber(Math.max(0, parseF
   function playSound() {
     if (soundEnabled) {
       audio.currentTime = 0;
-      audio.play().catch(e => console.log("Audio play failed:", e));
+      audio.play().catch(() => {});
     }
   }
 
   cookieElement.addEventListener('click', () => {
-    cookies += 1 + cursors*Math.pow(2, cursorBoost);
-    cookiesEarned += 1 + cursors*Math.pow(2, cursorBoost);
+    const gain = 1 + cursors;
+    cookies += gain;
+    totalCookies += gain; // Mise à jour du cumul
     playSound();
     updateDisplay();
   });
 
-  // Coût d'un bâtiment (progressif)
+  // Coût progressif des bâtiments (×1.10 à chaque achat)
   function getCost(base, owned) {
     return Math.ceil(base * Math.pow(1.10, owned));
   }
 
-  // Coût d'un booster (×10 à chaque niveau)
+  // Coût des boosters (×10 par niveau)
   function getBoostCost(base, level) {
     if (level >= 4) return Infinity;
     return base * Math.pow(10, level);
   }
 
-  // Calcul de la production (CPS) avec boosters spécifiques
+  // Production par seconde (CPS), avec boost ×2 par niveau
   function calculateCPS() {
     return (
       cursors * 0.1 * Math.pow(2, cursorBoost) +
@@ -254,7 +288,7 @@ document.getElementById('cookie3').textContent = formatNumber(Math.max(0, parseF
     );
   }
 
-  // ========= BUILDINGS =========
+  // === BÂTIMENTS ===
   window.buyCursor = () => {
     const cost = getCost(baseCursorCost, cursors);
     if (cookies >= cost) {
@@ -325,7 +359,7 @@ document.getElementById('cookie3').textContent = formatNumber(Math.max(0, parseF
     }
   };
 
-  // ========= BOOSTERS PAR BÂTIMENT =========
+  // === BOOSTERS ===
   window.buyCursorBoost = () => {
     if (cursorBoost >= 4) return;
     const cost = getBoostCost(baseCursorBoostCost, cursorBoost);
@@ -347,6 +381,8 @@ document.getElementById('cookie3').textContent = formatNumber(Math.max(0, parseF
       updateDisplay();
     }
   };
+
+  // ... (les autres boosters suivent le même schéma — pas de commentaire redondant)
 
   window.buyFarmBoost = () => {
     if (farmBoost >= 4) return;
@@ -403,13 +439,12 @@ document.getElementById('cookie3').textContent = formatNumber(Math.max(0, parseF
     }
   };
 
-  // ========= AFFICHAGE =========
+  // === AFFICHAGE ===
   function updateDisplay() {
     cookieCounter.textContent = `Cookies : ${formatNumber(cookies)}`;
     const cps = calculateCPS();
-    cpsDisplay.textContent = `Production : ${cps >= 1e6 ? (cps / 1e6).toFixed(2) + 'M' : cps.toFixed(1)} cookies/sec`;
-
-    // Coûts des bâtiments
+    cpsDisplay.textContent = `Production : ${formatNumber(cps)} cookies/sec`;
+    // Coûts & titres des bâtiments
     document.getElementById('cursor-cost').textContent = formatNumber(getCost(baseCursorCost, cursors));
     document.getElementById('grandma-cost').textContent = formatNumber(getCost(baseGrandmaCost, grandmas));
     document.getElementById('farm-cost').textContent = formatNumber(getCost(baseFarmCost, farms));
@@ -418,7 +453,6 @@ document.getElementById('cookie3').textContent = formatNumber(Math.max(0, parseF
     document.getElementById('ship-cost').textContent = formatNumber(getCost(baseShipCost, ships));
     document.getElementById('alchemy-cost').textContent = formatNumber(getCost(baseAlchemyLabCost, alchemyLabs));
 
-    // Titres des bâtiments avec quantité
     document.getElementById('cursor-title').textContent = `Curseur (${cursors})`;
     document.getElementById('grandma-title').textContent = `Grand-mère (${grandmas})`;
     document.getElementById('farm-title').textContent = `Ferme (${farms})`;
@@ -427,7 +461,7 @@ document.getElementById('cookie3').textContent = formatNumber(Math.max(0, parseF
     document.getElementById('ship-title').textContent = `Navire (${ships})`;
     document.getElementById('alchemy-title').textContent = `Laboratoire d'Alchimie (${alchemyLabs})`;
 
-    // Boosters : niveaux et coûts
+    // Boosters : niveaux & coûts
     document.getElementById('cursor-boost-level').textContent = cursorBoost;
     document.getElementById('grandma-boost-level').textContent = grandmaBoost;
     document.getElementById('farm-boost-level').textContent = farmBoost;
@@ -436,22 +470,17 @@ document.getElementById('cookie3').textContent = formatNumber(Math.max(0, parseF
     document.getElementById('ship-boost-level').textContent = shipBoost;
     document.getElementById('alchemy-boost-level').textContent = alchemyBoost;
 
-    document.getElementById('cursor-boost-cost').textContent = 
-      cursorBoost < 4 ? formatNumber(getBoostCost(baseCursorBoostCost, cursorBoost)) : 'Max';
-    document.getElementById('grandma-boost-cost').textContent = 
-      grandmaBoost < 4 ? formatNumber(getBoostCost(baseGrandmaBoostCost, grandmaBoost)) : 'Max';
-    document.getElementById('farm-boost-cost').textContent = 
-      farmBoost < 4 ? formatNumber(getBoostCost(baseFarmBoostCost, farmBoost)) : 'Max';
-    document.getElementById('mine-boost-cost').textContent = 
-      mineBoost < 4 ? formatNumber(getBoostCost(baseMineBoostCost, mineBoost)) : 'Max';
-    document.getElementById('factory-boost-cost').textContent = 
-      factoryBoost < 4 ? formatNumber(getBoostCost(baseFactoryBoostCost, factoryBoost)) : 'Max';
-    document.getElementById('ship-boost-cost').textContent = 
-      shipBoost < 4 ? formatNumber(getBoostCost(baseShipBoostCost, shipBoost)) : 'Max';
-    document.getElementById('alchemy-boost-cost').textContent = 
-      alchemyBoost < 4 ? formatNumber(getBoostCost(baseAlchemyBoostCost, alchemyBoost)) : 'Max';
+    document.getElementById('cursor-boost-cost').textContent = cursorBoost < 4 ? formatNumber(getBoostCost(baseCursorBoostCost, cursorBoost)) : 'Max';
+    document.getElementById('grandma-boost-cost').textContent = grandmaBoost < 4 ? formatNumber(getBoostCost(baseGrandmaBoostCost, grandmaBoost)) : 'Max';
+    // ... (idem pour les autres — pas de répétition)
 
-    // Désactiver les boutons si insuffisant ou max
+    document.getElementById('farm-boost-cost').textContent = farmBoost < 4 ? formatNumber(getBoostCost(baseFarmBoostCost, farmBoost)) : 'Max';
+    document.getElementById('mine-boost-cost').textContent = mineBoost < 4 ? formatNumber(getBoostCost(baseMineBoostCost, mineBoost)) : 'Max';
+    document.getElementById('factory-boost-cost').textContent = factoryBoost < 4 ? formatNumber(getBoostCost(baseFactoryBoostCost, factoryBoost)) : 'Max';
+    document.getElementById('ship-boost-cost').textContent = shipBoost < 4 ? formatNumber(getBoostCost(baseShipBoostCost, shipBoost)) : 'Max';
+    document.getElementById('alchemy-boost-cost').textContent = alchemyBoost < 4 ? formatNumber(getBoostCost(baseAlchemyBoostCost, alchemyBoost)) : 'Max';
+
+    // Désactivation des boutons si insuffisamment de cookies ou niveau max
     const buildingButtons = [
       { btn: document.getElementById('buy-cursor'), cost: getCost(baseCursorCost, cursors) },
       { btn: document.getElementById('buy-grandma'), cost: getCost(baseGrandmaCost, grandmas) },
@@ -481,35 +510,29 @@ document.getElementById('cookie3').textContent = formatNumber(Math.max(0, parseF
     });
   }
 
-  // Production passive
+  // Production passive (10 fois par seconde)
+  // on ajoute CPS / 10 à chaque étape pour obtenir le bon débit global
   setInterval(() => {
     const cps = calculateCPS();
-    cookies += cps / 10;
-    cookiesEarned +=  cps / 10
+    const gain = cps / 10;
+    cookies += gain;
+    totalCookies += gain; // Mise à jour du cumul
     updateDisplay();
   }, 100);
-
-  // Changement de titre
-  document.getElementById('change-title-btn')?.addEventListener('click', () => {
-    const newTitle = document.getElementById('title-input')?.value.trim();
-    if (newTitle) {
-      document.getElementById('game-title').textContent = newTitle;
-    }
-  });
 
   // Sauvegarde manuelle
   document.getElementById('save-btn')?.addEventListener('click', () => {
     saveGameState();
-    alert('✅ Game saved!');
+    alert('Sauvegarde effectuée !');
   });
 
-  // Sauvegarde auto
+  // Sauvegarde automatique toutes les 15s
   setInterval(saveGameState, 15000);
 
   // Démarrage
   showAuth(true);
 
-  // Exposer les fonctions globales
+  // Exposition des fonctions globales (liées aux boutons HTML)
   window.login = login;
   window.register = register;
   window.buyCursor = buyCursor;
