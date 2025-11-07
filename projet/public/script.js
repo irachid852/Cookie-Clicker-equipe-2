@@ -47,7 +47,13 @@ document.addEventListener('DOMContentLoaded', () => {
   const cookieElement = document.getElementById('cookie');
   cookieElement.draggable = false;
   const volumeSlider = document.getElementById('volume');
-
+  [cookieElement, cookieCounter, cpsDisplay].forEach(el => {
+  el.setAttribute('unselectable', 'on');     // IE/legacy
+  el.style.userSelect = 'none';              // Standard
+  el.style.webkitUserSelect = 'none';        // Safari
+  el.style.msUserSelect = 'none';            // Edge
+});
+cookieElement.addEventListener('contextmenu', e => e.preventDefault());
 // Formatage pour les quantités discrètes (ex: cookies) — <1000 → entier
 function formatNombreInt(num) {
   if (typeof num !== 'number' || !isFinite(num)) return '∞';
