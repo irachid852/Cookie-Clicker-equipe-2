@@ -223,7 +223,7 @@ function formatNumber(num) {
       console.warn('Échec du chargement:', e);
     }
   }
-
+// On recupère les 3 users avec le plus de cookies cumulés 
   async function leaderboard() {
     try {
       const res = await fetch('/api/leaderboard');
