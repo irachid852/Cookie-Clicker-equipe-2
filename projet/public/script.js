@@ -45,6 +45,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const cookieCounter = document.getElementById('cookie-counter');
   const cpsDisplay = document.getElementById('cps');
   const cookieElement = document.getElementById('cookie');
+  cookieElement.draggable = false;
   const volumeSlider = document.getElementById('volume');
 
 // Formatage pour les quantités discrètes (ex: cookies) — <1000 → entier
@@ -526,6 +527,25 @@ function formatNombreFloat(num) {
     document.getElementById('alchemy-boost-cost').textContent = alchemyBoost < 4 ? formatNombreInt(getBoostCost(baseAlchemyBoostCost, alchemyBoost)) : 'Max';
 
     // Désactivation des boutons si insuffisamment de cookies ou niveau max
+    const buildingButtons2 = [
+      { btn: document.getElementById('buy-cursor'), cost: getCost(baseCursorCost, cursors) },
+      { btn: document.getElementById('buy-grandma'), cost: (getCost(baseGrandmaCost, grandmas)) },
+      { btn: document.getElementById('buy-farm'), cost: (getCost(baseFarmCost, farms)) },
+      { btn: document.getElementById('buy-mine'), cost: (getCost(baseMineCost, mines)) },
+      { btn: document.getElementById('buy-factory'), cost: (getCost(baseFactoryCost, factories)) },
+      { btn: document.getElementById('buy-ship'), cost: (getCost(baseShipCost, ships)) },
+      { btn: document.getElementById('buy-alchemy'), cost: (getCost(baseAlchemyLabCost, alchemyLabs)) },
+    ];
+
+    const boostButtons2 = [
+      { btn: document.getElementById('buy-cursor-boost'), cost: (getBoostCost(baseCursorBoostCost, cursorBoost)), level: cursorBoost },
+      { btn: document.getElementById('buy-grandma-boost'), cost: (getBoostCost(baseGrandmaBoostCost, grandmaBoost)), level: grandmaBoost },
+      { btn: document.getElementById('buy-farm-boost'), cost: (getBoostCost(baseFarmBoostCost, farmBoost)), level: farmBoost },
+      { btn: document.getElementById('buy-mine-boost'), cost: (getBoostCost(baseMineBoostCost, mineBoost)), level: mineBoost },
+      { btn: document.getElementById('buy-factory-boost'), cost: (getBoostCost(baseFactoryBoostCost, factoryBoost)), level: factoryBoost },
+      { btn: document.getElementById('buy-ship-boost'), cost: (getBoostCost(baseShipBoostCost, shipBoost)), level: shipBoost },
+      { btn: document.getElementById('buy-alchemy-boost'), cost: (getBoostCost(baseAlchemyBoostCost, alchemyBoost)), level: alchemyBoost },
+    ];
     const buildingButtons = [
       { btn: document.getElementById('buy-cursor'), cost: formatNombreInt(getCost(baseCursorCost, cursors)) },
       { btn: document.getElementById('buy-grandma'), cost: formatNombreInt(getCost(baseGrandmaCost, grandmas)) },
@@ -546,11 +566,11 @@ function formatNombreFloat(num) {
       { btn: document.getElementById('buy-alchemy-boost'), cost: formatNombreInt(getBoostCost(baseAlchemyBoostCost, alchemyBoost)), level: alchemyBoost },
     ];
 
-    buildingButtons.forEach(({ btn, cost }) => {
+    buildingButtons2.forEach(({ btn, cost }) => {
       if (btn) btn.disabled = cookies < cost;
     });
 
-    boostButtons.forEach(({ btn, cost, level }) => {
+    boostButtons2.forEach(({ btn, cost, level }) => {
       if (btn) btn.disabled = level >= 4 || cookies < cost;
     });
   }
